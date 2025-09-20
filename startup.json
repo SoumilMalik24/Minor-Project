@@ -1,0 +1,176 @@
+[
+  {
+    "name": "CRED",
+    "sector": "Fintech",
+    "description": "CRED is a Bangalore-based fintech company that allows users to manage credit cards, make credit card bill payments, and rewards users for paying bills on time. It also provides services like rent payments, short-term credit lines, etc.",
+    "keywords": ["credit card payments", "fintech", "rewards", "bill payment", "financial services"]
+  },
+  {
+    "name": "Digit Insurance",
+    "sector": "Insurtech",
+    "description": "Digit Insurance is a digital first general insurance company from Bengaluru, offering simplified insurance solutions (auto, health, travel, commercial, bike etc.) with transparent policies and easy claims.",
+    "keywords": ["insurance", "health insurance", "auto insurance", "digital insurance", "claim processing"]
+  },
+  {
+    "name": "Udaan",
+    "sector": "E-commerce / B2B Marketplace",
+    "description": "Udaan is a B2B e-commerce platform founded in 2016 in Bengaluru that connects manufacturers, wholesalers, retailers and traders across India, operating across categories like FMCG, Pharma, Staples, Electronics etc., also offering financial services for business credit.",
+    "keywords": ["B2B marketplace", "ecommerce", "FMCG", "wholesale", "supply chain", "working capital"]
+  },
+  {
+    "name": "Pixxel",
+    "sector": "SpaceTech / Earth Observation",
+    "description": "Pixxel is a space technology startup building hyperspectral imaging satellites for earth observation, with applications in agriculture, environment, mining etc., and aims to provide satellite-data platform services.",
+    "keywords": ["satellite imagery", "space tech", "environment", "earth observation", "agriculture"]
+  },
+  {
+    "name": "Kuvera",
+    "sector": "WealthTech / Fintech",
+    "description": "Kuvera is an Indian online wealth management & investment platform for mutual funds, fixed deposits, digital gold etc., now owned by Cred, aimed at helping users manage investments and savings digitally.",
+    "keywords": ["investment", "mutual funds", "wealth management", "fintech", "digital savings"]
+  },
+  {
+    "name": "Zomato",
+    "sector": "FoodTech / Delivery",
+    "description": "Zomato is an online restaurant discovery and food delivery platform that connects customers with local restaurants and food outlets across India.",
+    "keywords": ["food delivery", "restaurant discovery", "online ordering", "foodtech"]
+  },
+  {
+    "name": "Groww",
+    "sector": "Fintech / Investment",
+    "description": "Groww is an investment platform simplifying mutual funds, stocks, ETFs, and gold investments with a mobile-first user experience targeting first-time investors.",
+    "keywords": ["investment", "mutual funds", "stocks", "fintech", "wealth management"]
+  },
+  {
+    "name": "Razorpay",
+    "sector": "Fintech / Payments",
+    "description": "Razorpay offers payment gateway services and business financial solutions including loans, payouts, and card issuing for Indian businesses.",
+    "keywords": ["payment gateway", "fintech", "business finance", "online payments"]
+  },
+  {
+    "name": "PolicyBazaar",
+    "sector": "Insurtech",
+    "description": "PolicyBazaar is an online platform for comparing and purchasing insurance policies spanning health, life, auto, and more, enhancing transparency for consumers.",
+    "keywords": ["insurance comparison", "health insurance", "life insurance", "digital insurance"]
+  },
+  {
+    "name": "Meesho",
+    "sector": "E-commerce / Social Commerce",
+    "description": "Meesho is a social commerce platform enabling small entrepreneurs and resellers to sell products through social networks and WhatsApp.",
+    "keywords": ["social commerce", "ecommerce", "reseller platform", "small business"]
+  },
+  {
+    "name": "Swiggy",
+    "sector": "Food Delivery / Logistics",
+    "description": "Swiggy is a leading food ordering and delivery platform connecting customers with restaurants and providing last-mile logistics solutions.",
+    "keywords": ["food delivery", "logistics", "online ordering", "foodtech"]
+  },
+  {
+    "name": "Skyroot Aerospace",
+    "sector": "SpaceTech / Rocket Launch",
+    "description": "Skyroot Aerospace is developing privately built Indian rockets for small satellite launches, pioneering liquid propulsion technology.",
+    "keywords": ["space tech", "rocket launch", "satellite", "aerospace"]
+  },
+  {
+    "name": "Agnikul",
+    "sector": "SpaceTech / Rocket Engines",
+    "description": "Agnikul is building India’s first 3D-printed rocket engines and small launch vehicles for satellite deployment.",
+    "keywords": ["space tech", "rocket engines", "satellite launch", "3D printing"]
+  },
+  {
+    "name": "Lenskart",
+    "sector": "Retail / Eyewear",
+    "description": "Lenskart is an omnichannel eyewear retailer offering prescription glasses, sunglasses, and contact lenses with home eye check-ups.",
+    "keywords": ["eyewear", "retail", "optical", "ecommerce"]
+  },
+  {
+    "name": "Paytm",
+    "sector": "Fintech / Payments",
+    "description": "Paytm is a digital payments and financial services platform offering mobile wallets, UPI payments, banking, insurance, and investments services.",
+    "keywords": ["digital payments", "fintech", "wallet", "banking", "insurance"]
+  },
+  {
+    "name": "Nykaa",
+    "sector": "E-commerce / Beauty",
+    "description": "Nykaa is a leading beauty and cosmetics e-commerce platform featuring makeup, skincare, and personal care products.",
+    "keywords": ["beauty", "cosmetics", "ecommerce", "personal care"]
+  },
+  {
+    "name": "Upstox",
+    "sector": "Fintech / Brokerage",
+    "description": "Upstox is an online discount brokerage platform providing stock trading, mutual funds, and investment services.",
+    "keywords": ["stock trading", "brokerage", "fintech", "investment"]
+  },
+  {
+    "name": "PharmEasy",
+    "sector": "HealthTech / Pharmacy",
+    "description": "PharmEasy is an online pharmacy and healthcare delivery platform providing medicines, diagnostic tests, and teleconsultations.",
+    "keywords": ["online pharmacy", "healthcare", "teleconsultation", "medicine delivery"]
+  },
+  {
+    "name": "BoAt",
+    "sector": "Consumer Electronics",
+    "description": "BoAt is a consumer electronics brand focused on affordable audio products including earphones, headphones, and smartwatches.",
+    "keywords": ["consumer electronics", "audio", "wearables", "smart devices"]
+  },
+  {
+    "name": "Zerodha",
+    "sector": "WealthTech / Brokerage",
+    "description": "Zerodha is India’s largest discount broker offering zero-commission stock trading and mutual fund investments.",
+    "keywords": ["stock trading", "discount brokerage", "fintech", "investment"]
+  },
+  {
+    "name": "Rivigo",
+    "sector": "Logistics / Supply Chain",
+    "description": "Rivigo is a logistics startup using technology-driven solutions like relay trucking and real-time tracking to improve freight transport.",
+    "keywords": ["logistics", "supply chain", "freight", "transport technology"]
+  },
+  {
+    "name": "PhonePe",
+    "sector": "Fintech / Payments",
+    "description": "PhonePe is a digital payments platform offering UPI, wallet, bill payments, mutual funds, and insurance products.",
+    "keywords": ["digital payments", "UPI", "wallet", "bill payments", "insurance"]
+  },
+  {
+    "name": "Freshworks",
+    "sector": "SaaS / Customer Support",
+    "description": "Freshworks provides cloud-based customer engagement software including CRM, helpdesk, and marketing automation tools.",
+    "keywords": ["SaaS", "CRM", "customer support", "automation"]
+  },
+  {
+    "name": "Darwinbox",
+    "sector": "HR Tech / SaaS",
+    "description": "Darwinbox offers a cloud-based human resource management system streamlining recruitment, attendance, payroll, and performance.",
+    "keywords": ["HR tech", "SaaS", "payroll", "recruitment", "employee management"]
+  },
+  {
+    "name": "OfBusiness",
+    "sector": "Fintech / B2B Commerce",
+    "description": "OfBusiness is a B2B commerce platform providing working capital and supply chain finance solutions to small and medium enterprises.",
+    "keywords": ["B2B commerce", "working capital", "supply chain finance", "SMEs"]
+  },
+  {
+    "name": "ShopClues",
+    "sector": "E-commerce",
+    "description": "ShopClues is an online marketplace focusing on value-for-money products across categories like electronics, fashion, and home essentials.",
+    "keywords": ["ecommerce", "marketplace", "fashion", "electronics"]
+  },
+  {
+    "name": "Jumbotail",
+    "sector": "E-commerce / Grocery",
+    "description": "Jumbotail is an online wholesale food and grocery supply platform for kirana stores and retailers.",
+    "keywords": ["B2B grocery", "ecommerce", "food supply", "retail"]
+  },
+  {
+    "name": "Dunzo",
+    "sector": "Quick Commerce / Delivery",
+    "description": "Dunzo is an on-demand delivery startup offering package pickup, grocery delivery, food delivery and courier services.",
+    "keywords": ["on-demand delivery", "quick commerce", "logistics", "courier"]
+  },
+  {
+    "name": "Delhivery",
+    "sector": "Logistics / Courier",
+    "description": "Delhivery is a logistics services company offering parcel transportation, warehousing, and supply chain solutions across India.",
+    "keywords": ["logistics", "parcel delivery", "warehousing", "courier"]
+  }
+]
