@@ -156,7 +156,7 @@ def fetch_missing_startups():
 
 def sentiment_score(text: str):
     logging.info('Sentiment Analysis started')
-    MODEL_PATH = r"D:\Data Science\Minor-Project\src\sentiments\finbert_model"
+    MODEL_PATH = r"Soumil24/finbert-custom"
 
     tokenizer = AutoTokenizer.from_pretrained(MODEL_PATH)
     model = AutoModelForSequenceClassification.from_pretrained(MODEL_PATH)
@@ -216,7 +216,7 @@ def process_and_store_initial_articles(startup_id, startup_name):
                 VALUES (%s, %s, %s, %s, %s, %s, %s, %s)
             """, (
                 str(uuid.uuid4()),
-                content,
+                (content[:300] if content else None),
                 article.get("publishedAt"),
                 sentiment,
                 score,
@@ -246,7 +246,7 @@ def process_and_store_daily_articles(startup_id, startup_name):
                 VALUES (%s, %s, %s, %s, %s, %s, %s, %s)
             """, (
                 str(uuid.uuid4()),
-                content,
+                (content[:300] if content else None),
                 article.get("publishedAt"),
                 sentiment,
                 score,

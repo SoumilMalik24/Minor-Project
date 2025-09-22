@@ -1,6 +1,7 @@
 credentials.txt
 FinancialPhraseBank-v1.0
 .venv311
+src/sentiments/finbert_model/
 # Byte-compiled / optimized / DLL files
 __pycache__/
 *.py[codz]

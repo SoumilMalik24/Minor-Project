@@ -7,6 +7,7 @@ def final_pipeline():
     logging.info("Entered Pipeline")
     missing = fetch_missing_startups()
     print(f"There are {len(missing)} Startups that are added")
+    logging.info(f"There are {len(missing)} Startups that are added")
     logging.info("checked for Missing startups in the articles db done")
 
     try:
