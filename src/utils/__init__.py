@@ -1,65 +1,140 @@
 import numpy as np
 import json
 import uuid
-from src.database import db_connection
-from datetime import datetime, timedelta
-from src.constants import *
 import requests
+from requests.adapters import HTTPAdapter, Retry
+from datetime import datetime, timedelta
 import torch
 import torch.nn.functional as F
 from transformers import AutoTokenizer, AutoModelForSequenceClassification
+from src.database import db_connection
+from src.constants import *
 from src.logger import logging
 
 
-conn = db_connection()
-
-def fetch_urls():
-    cur = conn.cursor()
-    cur.execute('SELECT COUNT(*) FROM "Articles"')
-    Number = cur.fetchall()
-    if Number[0][0]==0:
-        return "No Articles" 
-    else:
-        cur.execute('SELECT url FROM "Articles"')
-        urls = cur.fetchall()
-        cur.close()
-        return np.array(urls).flatten()
+# =========================================================
+# Global URL cache (for duplicate detection)
+# =========================================================
+_EXISTING_URLS_CACHE = set()
+_EXISTING_URLS_CACHE_TS = 0
 
 
+def get_connection():
+    """
+    Safely create a new database connection for each operation.
+    Ensures that every function works with its own isolated connection.
+    """
+    try:
+        return db_connection()
+    except Exception as e:
+        logging.error(f"Failed to create DB connection: {e}")
+        raise
 
+
+# =========================================================
+# URL Cache Helpers
+# =========================================================
+def fetch_existing_urls():
+    global _EXISTING_URLS_CACHE, _EXISTING_URLS_CACHE_TS
+
+    if _EXISTING_URLS_CACHE:
+        return _EXISTING_URLS_CACHE
+
+    conn = get_connection()
+    try:
+        with conn.cursor() as cur:
+            cur.execute('SELECT url FROM "Articles"')
+            urls = {row[0] for row in cur.fetchall() if row[0]}
+        _EXISTING_URLS_CACHE = urls
+        _EXISTING_URLS_CACHE_TS = datetime.now().timestamp()
+        logging.info(f"Fetched {len(urls)} existing URLs from DB")
+    finally:
+        conn.close()
+
+    return _EXISTING_URLS_CACHE
+
+
+# =========================================================
+# Startup Fetch Helpers
+# =========================================================
 def fetch_startups():
-    logging.info("retrieving id and name from Startups")
-    cur = conn.cursor()
-    cur.execute('SELECT id,name FROM "Startups"')
-    startups = cur.fetchall()
-    cur.close()
-    return startups
-
-def unique_id(input_file):
-    # Load existing JSON
-    with open(input_file, "r") as f:
-        data = json.load(f)
-
-    for startup in data:
-        if "id" not in startup or not startup["id"]:
-            startup["id"] = str(uuid.uuid4()) 
-
-    with open(input_file, "w") as f:
-        json.dump(data, f, indent=2)
-
-    print("UUIDs added successfully.")
+    logging.info("Retrieving id and name from Startups")
+    conn = get_connection()
+    try:
+        with conn.cursor() as cur:
+            cur.execute('SELECT id, name FROM "Startups"')
+            startups = cur.fetchall()
+        return startups
+    finally:
+        conn.close()
 
 
+def fetch_startup_id_from_articles():
+    logging.info("Fetching startup IDs from Articles")
+    conn = get_connection()
+    try:
+        with conn.cursor() as cur:
+            cur.execute('SELECT DISTINCT "startupId" FROM "Articles"')
+            startup_saved = cur.fetchall()
+        return startup_saved
+    finally:
+        conn.close()
+
+
+def fetch_startup_id_from_startupss():
+    logging.info('Fetching startup info from Startups DB')
+    conn = get_connection()
+    try:
+        with conn.cursor() as cur:
+            cur.execute('SELECT "id" FROM "Startups"')
+            startup_saved = cur.fetchall()
+        return startup_saved
+    finally:
+        conn.close()
+
+
+def fetch_missing_startups():
+    logging.info('Fetching missing startups from Articles DB')
+    conn = get_connection()
+    try:
+        with conn.cursor() as cur:
+            cur.execute("""
+                SELECT s.id, s.name 
+                FROM "Startups" s 
+                WHERE s.id NOT IN (SELECT "startupId" FROM "Articles")
+            """)
+            missing = cur.fetchall()
+        logging.info('Fetching DONE for missing startups')
+        return missing
+    finally:
+        conn.close()
+
+
+# =========================================================
+# News API setup with retry and timeout handling
+# =========================================================
 NEWS_API = NEWS_API_KEY
 
+session = requests.Session()
+retries = Retry(
+    total=3,
+    backoff_factor=1,
+    status_forcelist=[429, 500, 502, 503, 504],
+    allowed_methods=['GET']
+)
+adapter = HTTPAdapter(max_retries=retries)
+session.mount("http://", adapter)
+session.mount("https://", adapter)
+
+
 def initial_fetch_articles(startup_name):
-    logging.info("fetch started for new startup")
+    logging.info(f"Fetching 30-day news for {startup_name}")
     from_date = (datetime.now() - timedelta(days=30)).strftime("%Y-%m-%d")
     to_date = datetime.now().strftime("%Y-%m-%d")
     url = "https://newsapi.org/v2/everything"
     all_articles = []
     page = 1
-    
+
     while True:
         params = {
             "q": startup_name,
@@ -68,34 +143,40 @@ def initial_fetch_articles(startup_name):
             "sortBy": "publishedAt",
             "apiKey": NEWS_API,
             "language": "en",
-            "pageSize": 100,   
-            "page": page       
+            "pageSize": 100,
+            "page": page
         }
 
-        response = requests.get(url, params=params)
-        data = response.json()
+        try:
+            response = session.get(url, params=params, timeout=15)
+            response.raise_for_status()
+        except requests.exceptions.RequestException as e:
+            logging.warning(f"Request failed for {startup_name} (page {page}): {e}")
+            break
 
+        data = response.json()
         if "articles" not in data or not data["articles"]:
-            break  # no more results
+            break
 
         all_articles.extend(data["articles"])
         logging.info(f"Fetched {len(data['articles'])} articles from page {page}")
 
         if len(data["articles"]) < 100:
-            break  # last page reached
+            break
 
         page += 1
 
     return all_articles
 
+
 def repeat_fetch_articles(startup_name):
-    logging.info("fetching daily news for old startups")
+    logging.info(f"Fetching 1-day news for {startup_name}")
     from_date = (datetime.now() - timedelta(days=1)).strftime("%Y-%m-%d")
     to_date = datetime.now().strftime("%Y-%m-%d")
     url = "https://newsapi.org/v2/everything"
     all_articles = []
     page = 1
-    
+
     while True:
         params = {
             "q": startup_name,
@@ -104,155 +185,215 @@ def repeat_fetch_articles(startup_name):
             "sortBy": "publishedAt",
             "apiKey": NEWS_API,
             "language": "en",
-            "pageSize": 100,   
-            "page": page       
+            "pageSize": 100,
+            "page": page
         }
 
-        response = requests.get(url, params=params)
-        data = response.json()
+        try:
+            response = session.get(url, params=params, timeout=15)
+            response.raise_for_status()
+        except requests.exceptions.RequestException as e:
+            logging.warning(f"Request failed for {startup_name} (page {page}): {e}")
+            break
 
+        data = response.json()
         if "articles" not in data or not data["articles"]:
-            break  # no more results
+            break
 
         all_articles.extend(data["articles"])
         logging.info(f"Fetched {len(data['articles'])} articles from page {page}")
 
         if len(data["articles"]) < 100:
-            break  # last page reached
+            break
 
         page += 1
 
     return all_articles
 
-def fetch_startup_id_from_articles():
-    logging.info("fetching startup id from articles")
-    cur = conn.cursor()
-    cur.execute('SELECT "startupId" FROM "Articles"')
-    startup_saved = cur.fetchall()
-    cur.close()
-    return startup_saved
 
-def fetch_startup_id_from_startupss():
-    logging.info('fetching startup info from Startups db')
-    cur = conn.cursor()
-    cur.execute('SELECT "id" FROM "Startups"')
-    startup_saved = cur.fetchall()
-    cur.close()
-    return startup_saved
+# =========================================================
+# Hugging Face Model Setup
+# =========================================================
+MODEL_ID = "Soumil24/finbert-custom"
+token = hf_token
 
-def fetch_missing_startups():
-    logging.info('fetching missing startups from Articles db')
-    cur = conn.cursor()
-    cur.execute("""SELECT s.id,s.name 
-                FROM "Startups"s 
-                WHERE s.id NOT IN(SELECT "startupId" FROM "Articles" ) 
-                """)
-
-    missing = cur.fetchall()
-    cur.close()
-    logging.info('fetching DONE for missing startups from Articles db')
-    return missing
-
-
-def sentiment_score(text: str):
-    logging.info('Sentiment Analysis started')
-    MODEL_PATH = r"Soumil24/finbert-custom"
-
-    tokenizer = AutoTokenizer.from_pretrained(MODEL_PATH)
-    model = AutoModelForSequenceClassification.from_pretrained(MODEL_PATH)
+try:
+    logging.info(f"Loading FinBERT model from Hugging Face: {MODEL_ID}")
+    tokenizer = AutoTokenizer.from_pretrained(MODEL_ID, use_auth_token=token)
+    model = AutoModelForSequenceClassification.from_pretrained(MODEL_ID, use_auth_token=token)
     model.eval()
+    device = "cuda" if torch.cuda.is_available() else "cpu"
+    model.to(device)
+    logging.info(f"FinBERT model loaded successfully on {device.upper()}")
+except Exception as e:
+    logging.error(f"Failed to load FinBERT model: {e}")
+    raise
 
-    """Predict sentiment and return (label, score in [-1, 1])"""
+
+# =========================================================
+# Sentiment Scoring
+# =========================================================
+def sentiment_score(text):
     inputs = tokenizer(
-        text,
-        return_tensors="pt",
-        truncation=True,
-        padding=True
-    ).to(model.device)
+        text, return_tensors="pt", truncation=True, padding=True, max_length=256
+    ).to(device)
 
     with torch.no_grad():
         outputs = model(**inputs)
         probs = F.softmax(outputs.logits, dim=-1).cpu().numpy()[0]
 
-    # Adjust these if your model has different class order
-    sentiment_values = {"negative": -1, "neutral": 0, "positive": 1}
-    id2label = {0: "negative", 1: "neutral", 2: "positive"}
+    labels = ["negative", "neutral", "positive"]
+    weights = {"negative": -1, "neutral": 0, "positive": 1}
+    sentiment = labels[int(probs.argmax())]
+    score = float(sum(probs[i] * weights[labels[i]] for i in range(len(probs))))
+    return sentiment, score
 
-    score = float(sum(probs[i] * sentiment_values[id2label[i]] for i in range(len(probs))))
-    predicted_label = id2label[int(probs.argmax())]
 
-    logging.info('sentiment analysis done')
-    return predicted_label, score
+def sentiment_score_batch(texts):
+    if not texts:
+        return []
 
+    inputs = tokenizer(
+        texts,
+        return_tensors="pt",
+        truncation=True,
+        padding=True,
+        max_length=256
+    ).to(device)
+
+    with torch.no_grad():
+        outputs = model(**inputs)
+        probs = F.softmax(outputs.logits, dim=-1).cpu().numpy()
+
+    labels = ["negative", "neutral", "positive"]
+    weights = {"negative": -1, "neutral": 0, "positive": 1}
+
+    results = []
+    for prob in probs:
+        sentiment = labels[int(prob.argmax())]
+        score = float(sum(prob[i] * weights[labels[i]] for i in range(len(prob))))
+        results.append((sentiment, score))
+
+    return results
+
+
+# =========================================================
+# Duplicate Article Check
+# =========================================================
 def check_duplicacy(articles):
-    logging.info('checking for duplicate articles')
-    cur = conn.cursor()
+    logging.info('Checking for duplicate articles')
+    global _EXISTING_URLS_CACHE
+    existing_urls = fetch_existing_urls()
 
-    cur.execute("SELECT url FROM \"Articles\"")
-    article_url = {row[0] for row in cur.fetchall()}
+    new_articles = [a for a in articles if a.get('url') and a['url'] not in existing_urls]
+    logging.info(f"Found {len(new_articles)} new articles after removing duplicates using cache")
 
-    new_articles = [a for a in articles if a.get('url') not in article_url]
-    logging.info('checking DONE for duplicate articles')
+    try:
+        new_urls = {a['url'] for a in new_articles if a.get('url')}
+        _EXISTING_URLS_CACHE.update(new_urls)
+        logging.info(f"Updated existing URLs cache with {len(new_urls)} new URLs")
+    except Exception as e:
+        logging.warning(f"Failed to update the URL cache: {e}")
 
     return new_articles
-    
 
+
+# =========================================================
+# Article Processing & Storage
+# =========================================================
 def process_and_store_initial_articles(startup_id, startup_name):
     articles = initial_fetch_articles(startup_name)
     new_articles = check_duplicacy(articles)
-    logging.info("articles fetched and checked for duplicacy")
+    logging.info("Articles fetched and checked for duplicacy")
+
+    contents = []
+    valid_articles = []
     for article in new_articles:
         content = article.get("content") or article.get("description")
-        
-        if not content:  # skip empty ones
+        if not content:
             continue
-        
-        sentiment, score = sentiment_score(content)
-        
+        contents.append(content)
+        valid_articles.append(article)
+
+    if not contents:
+        logging.info(f"No valid contents for {startup_name}")
+        return
+
+    results = sentiment_score_batch(contents)
+    batch = []
+
+    for article, (sentiment, score) in zip(valid_articles, results):
+        content = article.get("content") or article.get("description")
+        batch.append((
+            str(uuid.uuid4()),
+            content[:300],
+            article.get("publishedAt"),
+            sentiment,
+            score,
+            startup_id,
+            article.get("title") or "untitled",
+            article.get("url")
+        ))
+
+    conn = get_connection()
+    try:
         with conn.cursor() as cur:
-            cur.execute("""
+            cur.executemany("""
                 INSERT INTO "Articles" 
                 (id, content, "publishedAt", sentiment, "sentimentScores", "startupId", title, url)
                 VALUES (%s, %s, %s, %s, %s, %s, %s, %s)
-            """, (
-                str(uuid.uuid4()),
-                (content[:300] if content else None),
-                article.get("publishedAt"),
-                sentiment,
-                score,
-                startup_id,
-                article.get("title") or "untitled",
-                article.get("url")
-            ))
-    conn.commit()
+            """, batch)
+        conn.commit()
+    finally:
+        conn.close()
+
     logging.info(f"Inserted {len(new_articles)} articles for {startup_name}")
 
 
 def process_and_store_daily_articles(startup_id, startup_name):
     articles = repeat_fetch_articles(startup_name)
     new_articles = check_duplicacy(articles)
-    logging.info("articles fetched and checked for duplicacy")
+    logging.info("Articles fetched and checked for duplicacy")
+
+    contents = []
+    valid_articles = []
     for article in new_articles:
         content = article.get("content") or article.get("description")
-        
-        if not content:  # skip empty ones
+        if not content:
             continue
-        
-        sentiment, score = sentiment_score(content)
+        contents.append(content)
+        valid_articles.append(article)
+
+    if not contents:
+        logging.info(f"No valid contents for {startup_name}")
+        return
+
+    results = sentiment_score_batch(contents)
+    batch = []
+
+    for article, (sentiment, score) in zip(valid_articles, results):
+        content = article.get("content") or article.get("description")
+        batch.append((
+            str(uuid.uuid4()),
+            content[:300],
+            article.get("publishedAt"),
+            sentiment,
+            score,
+            startup_id,
+            article.get("title") or "untitled",
+            article.get("url")
+        ))
+
+    conn = get_connection()
+    try:
         with conn.cursor() as cur:
-            cur.execute("""
+            cur.executemany("""
                 INSERT INTO "Articles" 
                 (id, content, "publishedAt", sentiment, "sentimentScores", "startupId", title, url)
                 VALUES (%s, %s, %s, %s, %s, %s, %s, %s)
-            """, (
-                str(uuid.uuid4()),
-                (content[:300] if content else None),
-                article.get("publishedAt"),
-                sentiment,
-                score,
-                startup_id,
-                article.get("title") or "untitled",
-                article.get("url")
-            ))
-    conn.commit()
+            """, batch)
+        conn.commit()
+    finally:
+        conn.close()
+
     logging.info(f"Inserted {len(new_articles)} articles for {startup_name}")
