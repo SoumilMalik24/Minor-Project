@@ -1,44 +1,35 @@
 name: Run News Pipeline
 
 on:
-  # schedule:
-    # # Runs every day at 7am, 1pm, 7pm IST (01:30, 07:30, 13:30 UTC)
-    # - cron: "30 1,7,13 * * *"
-  workflow_dispatch:
+  schedule:
+    # Runs every day at 7am, 1pm, and 7pm IST (01:30, 07:30, 13:30 UTC)
+    - cron: "30 1,7,13 * * *"
+  workflow_dispatch:  # allows manual runs from the Actions tab
 
 jobs:
   run-pipeline:
     runs-on: ubuntu-latest
+    timeout-minutes: 30
 
     steps:
-      - name: Checkout repo
-        uses: actions/checkout@v3
+      - name: Checkout repository
+        uses: actions/checkout@v4
 
       - name: Set up Python
         uses: actions/setup-python@v4
         with:
-          python-version: '3.11'
-
-      - name: Cache Hugging Face models
-        uses: actions/cache@v3
-        with:
-          path: ~/.cache/huggingface
-          key: ${{ runner.os }}-huggingface
-
-      - name: Upgrade pip
-        run: python -m pip install --upgrade pip
+          python-version: "3.11"
 
       - name: Install dependencies
-        run: pip install -r requirements.txt
-
-      # Uncomment this block if you need CUDA-enabled PyTorch in CI:
-      # - name: Install PyTorch with CUDA 12.1
-      #   run: |
-      #     pip install torch==2.5.1+cu121 torchvision==0.20.1+cu121 torchaudio==2.5.1+cu121 \
-      #       --index-url https://download.pytorch.org/whl/cu121
+        run: |
+          python -m pip install --upgrade pip
+          pip install -r requirements.txt
+          pip install torch torchvision torchaudio --index-url https://download.pytorch.org/whl/cpu
 
       - name: Run pipeline
         env:
           DB_URI: ${{ secrets.DB_URI }}
           NEWS_API: ${{ secrets.NEWS_API }}
+          HF_TOKEN: ${{ secrets.HF_TOKEN }}
+          HF_HUB_DISABLE_SYMLINKS_WARNING: 1
         run: python main.py
