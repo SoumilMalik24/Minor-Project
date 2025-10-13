@@ -15,10 +15,7 @@ from datetime import datetime
 
 # --- Helper for retry logic ---
 def run_with_retries(func, retries=2, delay=5, *args):
-    """
-    Runs a function with retry logic for transient errors.
-    Retries on OperationalError or network-like failures.
-    """
+    """Runs a function with retry logic for transient errors."""
     attempt = 0
     while attempt <= retries:
         try:
@@ -35,12 +32,12 @@ def run_with_retries(func, retries=2, delay=5, *args):
 
 # --- Startup Processing Functions ---
 
-def process_missing(startup_id, startup_name):
+def process_missing(startup_id, startup_name, helping_words):
     """Handles initial article fetching for new startups with retry logic."""
     start = time.time()
     try:
         def task():
-            process_and_store_initial_articles(startup_id, startup_name)
+            process_and_store_initial_articles(startup_id, startup_name, helping_words)
         run_with_retries(task, retries=2, delay=5)
 
         duration = round(time.time() - start, 2)
@@ -58,12 +55,12 @@ def process_missing(startup_id, startup_name):
         return {"name": startup_name, "phase": "missing", "status": "failed", "time": duration}
 
 
-def process_existing(startup_id, startup_name):
+def process_existing(startup_id, startup_name, helping_words):
     """Handles daily article fetching for existing startups with retry logic."""
     start = time.time()
     try:
         def task():
-            process_and_store_daily_articles(startup_id, startup_name)
+            process_and_store_daily_articles(startup_id, startup_name, helping_words)
         run_with_retries(task, retries=2, delay=5)
 
         duration = round(time.time() - start, 2)
@@ -109,25 +106,31 @@ def final_pipeline(max_workers=None):
         logging.info(f"Auto-set max_workers = {max_workers}")
 
     # Phase 1: Missing startups
-    missing_startups = fetch_missing_startups()
+    missing_startups = fetch_missing_startups()  # should return id, name, helping_words
     logging.info(f"Found {len(missing_startups)} missing startups")
 
     if missing_startups:
         with ThreadPoolExecutor(max_workers=max_workers) as executor:
-            futures = {executor.submit(process_missing, sid, sname): sname for sid, sname in missing_startups}
+            futures = {
+                executor.submit(process_missing, sid, sname, helping_words): sname
+                for sid, sname, helping_words in missing_startups
+            }
             for future in as_completed(futures):
                 result = future.result()
                 results.append(result)
 
     # Phase 2: Existing startups
-    all_startups = fetch_startups()
-    missing_ids = {sid for sid, _ in missing_startups}
-    existing_startups = [(sid, sname) for sid, sname in all_startups if sid not in missing_ids]
+    all_startups = fetch_startups()  # should return id, name, helping_words
+    missing_ids = {sid for sid, _, _ in missing_startups}
+    existing_startups = [(sid, sname, helping_words) for sid, sname, helping_words in all_startups if sid not in missing_ids]
     logging.info(f"Found {len(existing_startups)} existing startups")
 
     if existing_startups:
         with ThreadPoolExecutor(max_workers=max_workers) as executor:
-            futures = {executor.submit(process_existing, sid, sname): sname for sid, sname in existing_startups}
+            futures = {
+                executor.submit(process_existing, sid, sname, helping_words): sname
+                for sid, sname, helping_words in existing_startups
+            }
             for future in as_completed(futures):
                 result = future.result()
                 results.append(result)

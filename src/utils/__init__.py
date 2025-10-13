@@ -4,12 +4,14 @@ import uuid
 import requests
 from requests.adapters import HTTPAdapter, Retry
 from datetime import datetime, timedelta
+import time
 import torch
 import torch.nn.functional as F
 from transformers import AutoTokenizer, AutoModelForSequenceClassification
 from src.database import db_connection
 from src.constants import *
 from src.logger import logging
+from itertools import cycle
 
 
 # =========================================================
@@ -62,7 +64,7 @@ def fetch_startups():
     conn = get_connection()
     try:
         with conn.cursor() as cur:
-            cur.execute('SELECT id, name FROM "Startups"')
+            cur.execute('SELECT id, name, COALESCE("findingKeywords",\'{}\') FROM "Startups"')
             startups = cur.fetchall()
         return startups
     finally:
@@ -99,7 +101,7 @@ def fetch_missing_startups():
     try:
         with conn.cursor() as cur:
             cur.execute("""
-                SELECT s.id, s.name 
+                SELECT s.id, s.name, COALESCE(s."findingKeywords", '{}')
                 FROM "Startups" s 
                 WHERE s.id NOT IN (SELECT "startupId" FROM "Articles")
             """)
@@ -108,12 +110,35 @@ def fetch_missing_startups():
         return missing
     finally:
         conn.close()
+# =========================================================
+# News API query building
+# =========================================================
+def  build_query(startup_name, helping_words):
+    base_terms = [
+        f'"{startup_name}"'
+        f'"{startup_name}" startup'
+        f'"{startup_name}" company'
+        f'"{startup_name}" India'
+    ]
+    if helping_words:
+        if isinstance(helping_words,str):
+            helping_words = json.loads(helping_words) if helping_words.strip().startswith('[') else helping_words.split(',')
+        base_terms.extend([f'"{word.strip()}"' for word in helping_words])
 
+        return " OR ".join(base_terms)
 
 # =========================================================
 # News API setup with retry and timeout handling
 # =========================================================
-NEWS_API = NEWS_API_KEY
+NEWS_API_KEYS = NEWS_API_KEY
+
+if not NEWS_API_KEYS or NEWS_API_KEYS=='':
+    raise ValueError("no NEWS_API_KEYS found in the env")
+
+key_cycle = cycle(NEWS_API_KEYS)
+
+def get_news_api_key():
+    return next(key_cycle)
 
 session = requests.Session()
 retries = Retry(
@@ -127,7 +152,7 @@ session.mount("http://", adapter)
 session.mount("https://", adapter)
 
 
-def initial_fetch_articles(startup_name):
+def initial_fetch_articles(startup_name, helping_words):
     logging.info(f"Fetching 30-day news for {startup_name}")
     from_date = (datetime.now() - timedelta(days=30)).strftime("%Y-%m-%d")
     to_date = datetime.now().strftime("%Y-%m-%d")
@@ -136,12 +161,13 @@ def initial_fetch_articles(startup_name):
     page = 1
 
     while True:
+        api_key = get_news_api_key()
         params = {
-            "q": startup_name,
+            "q": build_query(startup_name, helping_words),
             "from": str(from_date),
             "to": str(to_date),
             "sortBy": "publishedAt",
-            "apiKey": NEWS_API,
+            "apiKey": api_key,
             "language": "en",
             "pageSize": 100,
             "page": page
@@ -165,11 +191,12 @@ def initial_fetch_articles(startup_name):
             break
 
         page += 1
+        time.sleep(1.2)
 
     return all_articles
 
 
-def repeat_fetch_articles(startup_name):
+def repeat_fetch_articles(startup_name, helping_words):
     logging.info(f"Fetching 1-day news for {startup_name}")
     from_date = (datetime.now() - timedelta(days=1)).strftime("%Y-%m-%d")
     to_date = datetime.now().strftime("%Y-%m-%d")
@@ -178,12 +205,13 @@ def repeat_fetch_articles(startup_name):
     page = 1
 
     while True:
+        api_key = get_news_api_key()
         params = {
-            "q": startup_name,
+            "q": build_query(startup_name, helping_words),
             "from": str(from_date),
             "to": str(to_date),
             "sortBy": "publishedAt",
-            "apiKey": NEWS_API,
+            "apiKey": api_key,
             "language": "en",
             "pageSize": 100,
             "page": page
@@ -207,6 +235,7 @@ def repeat_fetch_articles(startup_name):
             break
 
         page += 1
+        time.sleep(1.2)
 
     return all_articles
 
@@ -301,8 +330,8 @@ def check_duplicacy(articles):
 # =========================================================
 # Article Processing & Storage
 # =========================================================
-def process_and_store_initial_articles(startup_id, startup_name):
-    articles = initial_fetch_articles(startup_name)
+def process_and_store_initial_articles(startup_id, startup_name, helping_words):
+    articles = initial_fetch_articles(startup_name,helping_words)
     new_articles = check_duplicacy(articles)
     logging.info("Articles fetched and checked for duplicacy")
 
@@ -350,8 +379,8 @@ def process_and_store_initial_articles(startup_id, startup_name):
     logging.info(f"Inserted {len(new_articles)} articles for {startup_name}")
 
 
-def process_and_store_daily_articles(startup_id, startup_name):
-    articles = repeat_fetch_articles(startup_name)
+def process_and_store_daily_articles(startup_id, startup_name, helping_words):
+    articles = repeat_fetch_articles(startup_name,helping_words)
     new_articles = check_duplicacy(articles)
     logging.info("Articles fetched and checked for duplicacy")
 
