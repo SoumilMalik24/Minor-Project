@@ -17,8 +17,15 @@ from itertools import cycle
 # =========================================================
 # Global URL cache (for duplicate detection)
 # =========================================================
-_EXISTING_URLS_CACHE = set()
-_EXISTING_URLS_CACHE_TS = 0
+def reset_url_cache():
+    """
+    Clears the in-memory URL cache before each pipeline run.
+    Prevents old URLs from previous runs causing false duplicates.
+    """
+    global _EXISTING_URLS_CACHE, _EXISTING_URLS_CACHE_TS
+    _EXISTING_URLS_CACHE = set()
+    _EXISTING_URLS_CACHE_TS = 0
+    logging.info("URL duplicate cache reset.")
 
 
 def get_connection():
@@ -338,8 +345,10 @@ def process_and_store_initial_articles(startup_id, startup_name, helping_words):
     contents = []
     valid_articles = []
     for article in new_articles:
-        content = article.get("content") or article.get("description")
-        if not content:
+        desc = article.get("description") or ""
+        cont = article.get("content") or ""
+        content = (desc + ". " + cont).strip()
+        if not content or len(content) < 30:
             continue
         contents.append(content)
         valid_articles.append(article)
@@ -387,8 +396,10 @@ def process_and_store_daily_articles(startup_id, startup_name, helping_words):
     contents = []
     valid_articles = []
     for article in new_articles:
-        content = article.get("content") or article.get("description")
-        if not content:
+        desc = article.get("description") or ""
+        cont = article.get("content") or ""
+        content = (desc + ". " + cont).strip()
+        if not content or len(content) < 30:
             continue
         contents.append(content)
         valid_articles.append(article)

@@ -4,6 +4,7 @@ from src.utils import (
     fetch_startups,
     process_and_store_initial_articles,
     process_and_store_daily_articles,
+    reset_url_cache
 )
 from src.logger import logging
 import time
@@ -99,6 +100,7 @@ def final_pipeline(max_workers=None):
     results = []
 
     logging.info("=== PIPELINE STARTED ===")
+    reset_url_cache()
 
     if not max_workers:
         cpu_count = os.cpu_count() or 4
