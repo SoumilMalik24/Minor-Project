@@ -356,5 +356,215 @@
       "courier"
     ],
     "id": "ef30639b-7e0a-49e3-a61e-41918bc40155"
+  },
+    {
+    "name": "BYJU’S",
+    "sector": "EdTech",
+    "description": "BYJU’S is a leading Indian edtech company offering online learning programs, test prep, and interactive classes for K-12 and competitive exams.",
+    "keywords": ["edtech", "online learning", "test prep", "K12", "education"],
+    "id": "fc53fca3-c470-472e-800f-7bef61dbd12a"
+  },
+  {
+    "name": "Unacademy",
+    "sector": "EdTech",
+    "description": "Unacademy is an online learning platform that offers courses, live classes and preparation for various competitive exams and skill development programs.",
+    "keywords": ["edtech", "online education", "competitive exams", "learning platform"],
+    "id": "d4e8af17-ca8f-4dfc-84a9-b29ee2aa9fc2"
+  },
+  {
+    "name": "Vedantu",
+    "sector": "EdTech",
+    "description": "Vedantu is a live tutoring platform offering online interactive classes, doubt solving, and live learning sessions in India.",
+    "keywords": ["edtech", "live tutoring", "online classes", "school learning"],
+    "id": "ed06695b-4386-4846-95d2-69fbf64ad2d5"
+  },
+  {
+    "name": "Toppr",
+    "sector": "EdTech",
+    "description": "Toppr is an online learning app for K-12 students providing video lessons, practice, and exam prep across India.",
+    "keywords": ["edtech", "K12", "exam prep", "learning app"],
+    "id": "a50ac7d9-5c3f-4e5a-b2f4-488fb50843a6"
+  },
+  {
+    "name": "UpGrad",
+    "sector": "EdTech / Online Learning",
+    "description": "UpGrad is a higher education & upskilling platform offering certificates, degree programs, and skill learning in data science, tech, business, etc.",
+    "keywords": ["edtech", "upskill", "online learning", "career development"],
+    "id": "a5a4efb4-c4f9-405e-adee-f32692ad6299"
+  },
+  {
+    "name": "Pharmeasy Healthtech Diagnostics",
+    "sector": "HealthTech / Diagnostics",
+    "description": "A healthtech venture focusing on diagnostics, at-home sample collection, lab partnerships and test result delivery.",
+    "keywords": ["healthtech", "diagnostics", "lab tests", "home sample collection"],
+    "id": "a0aaa1fd-7c37-4ca9-8288-f177a0223c3a"
+  },
+  {
+    "name": "1mg",
+    "sector": "HealthTech / Pharmacy",
+    "description": "1mg is a digital health platform offering online medicine purchases, diagnostics, doctor consultations, and health information services.",
+    "keywords": ["healthtech", "online pharmacy", "telemedicine", "health information"],
+    "id": "1c6eb970-a33f-4fa5-9fa3-80b30cb302e1"
+  },
+  {
+    "name": "Practo",
+    "sector": "HealthTech / Telemedicine",
+    "description": "Practo connects patients with doctors, offering online consultation, scheduling, prescriptions, and clinic services.",
+    "keywords": ["healthtech", "telemedicine", "doctor consultation", "health platform"],
+    "id": "caff9082-a7fd-48e2-bba1-bea9984a8f6a"
+  },
+  {
+    "name": "CureFit",
+    "sector": "HealthTech / Wellness",
+    "description": "CureFit is a wellness and health platform for fitness, mental health, healthy food delivery and preventive care.",
+    "keywords": ["healthtech", "wellness", "fitness", "mental health", "food health"],
+    "id": "e3274451-ecf8-4a8b-8774-34c610548f5b"
+  },
+  {
+    "name": "Licious",
+    "sector": "FoodTech / D2C",
+    "description": "Licious is a fresh meat & seafood direct-to-consumer brand offering online ordering and home delivery of high quality meats.",
+    "keywords": ["foodtech", "meat delivery", "fresh food", "D2C"],
+    "id": "6877ddca-e4e1-4e0e-8d52-86cde2bb5882"
+  },
+  {
+    "name": "Zerodha (Coin)",
+    "sector": "WealthTech",
+    "description": "Coin is Zerodha’s platform for direct mutual fund investments and portfolio management for Indian investors.",
+    "keywords": ["wealthtech", "mutual funds", "investment platform", "portfolio management"],
+    "id": "ed58db42-fad9-4dd2-976c-685f6a6a6f12"
+  },
+  {
+    "name": "Infra.Market",
+    "sector": "B2B / Construction Tech",
+    "description": "Infra.Market is a construction tech startup aggregating procurement for building materials, reducing inefficiencies in supply chains.",
+    "keywords": ["construction", "B2B", "supply chain", "procurement"],
+    "id": "10cf89c7-8906-46bb-9c17-305d9f2f2241"
+  },
+  {
+    "name": "Licious Fresh Foods",
+    "sector": "FoodTech / Supply Chain",
+    "description": "Focus on integrated food supply chain, from sourcing to delivery of perishable goods with cold chain infrastructure.",
+    "keywords": ["foodtech", "cold chain", "supply chain", "perishables"],
+    "id": "2685f40a-0f97-4011-b73f-bd31151c93dd"
+  },
+  {
+    "name": "Delhivery (Express)",
+    "sector": "Logistics / Express",
+    "description": "A division of Delhivery focusing on express parcel delivery and same-day/next-day logistics services.",
+    "keywords": ["logistics", "express delivery", "parcel", "same day"],
+    "id": "9892c839-e6f1-4036-8bdd-38fe95b6f49e"
+  },
+  {
+    "name": "Shadowfax",
+    "sector": "Logistics / Delivery",
+    "description": "Shadowfax is a crowdsourced logistics platform that provides delivery, hyperlocal, and 3PL services for multiple verticals.",
+    "keywords": ["logistics", "crowdsourced delivery", "hyperlocal", "3PL"],
+    "id": "d5b68b9f-c080-4094-a21b-970c26b48375"
+  },
+  {
+    "name": "Rivigo (Relay Tech)",
+    "sector": "Supply Chain / Tech",
+    "description": "A tech arm of Rivigo developing relay trucking algorithms, predictive maintenance and fleet optimization tools.",
+    "keywords": ["supply chain", "relay trucking", "fleet optimization", "tech"],
+    "id": "5aa9a24a-d277-46d4-91f4-b5face461491"
+  },
+  {
+    "name": "LimeRoad",
+    "sector": "Social Commerce / Fashion",
+    "description": "LimeRoad is a social shopping platform for fashion and lifestyle products, integrating social discovery and buying.",
+    "keywords": ["fashion", "social commerce", "ecommerce", "lifestyle"],
+    "id": "a18bbca0-1551-4bb1-85d2-123b2adad9b2"
+  },
+  {
+    "name": "Fastrack",
+    "sector": "Wearable / Fashion Tech",
+    "description": "Fastrack (subsidiary of Titan) also experiments with smart wearables, youth fashion accessories and IoT gadgets for lifestyle.",
+    "keywords": ["wearables", "fashion tech", "IoT", "accessories"],
+    "id": "c2dcf9d2-d370-4da4-8d4a-6501b0b244ed"
+  },
+  {
+    "name": "FreshToHome",
+    "sector": "FoodTech / Fresh Produce",
+    "description": "FreshToHome is an online marketplace for fresh fish, meat and other perishables, connecting farmers & suppliers directly with consumers.",
+    "keywords": ["foodtech", "fresh produce", "agri supply", "marketplace"],
+    "id": "b68744c6-e6c1-4930-9157-d361c96ee72a"
+  },
+  {
+    "name": "Agritech-X",
+    "sector": "AgriTech",
+    "description": "An agritech startup using IoT, drones, and satellite data to provide precision farming, farm advisory and yield forecasting.",
+    "keywords": ["agritech", "IoT", "satellite data", "farm advisory"],
+    "id": "adcdb50f-588a-4e50-8a4a-968981870033"
+  },
+  {
+    "name": "CropIn",
+    "sector": "AgriTech / SaaS",
+    "description": "CropIn is a SaaS agritech company offering farm management software, predictive analytics and farm intelligence to agribusinesses.",
+    "keywords": ["agritech", "farm management", "analytics", "SaaS"],
+    "id": "59d267e1-8aa9-4989-8fc9-92de818509a0"
+  },
+  {
+    "name": "Ninjacart",
+    "sector": "Agri / Supply Chain",
+    "description": "Ninjacart operates a fresh produce supply chain connecting farmers and retailers using technology for logistics optimization.",
+    "keywords": ["agritech", "supply chain", "fresh produce", "logistics"],
+    "id": "66a6eac9-a24f-4474-ab05-bae90a930794"
+  },
+  {
+    "name": "Ather Energy",
+    "sector": "EV / CleanTech",
+    "description": "Ather Energy designs, builds and operates electric scooters and a network of charging infrastructure in India.",
+    "keywords": ["electric vehicles", "EV", "clean tech", "mobility"],
+    "id": "a582da9e-f648-44da-981a-9a3ec8e585b4"
+  },
+  {
+    "name": "Ola Electric",
+    "sector": "EV / Mobility",
+    "description": "Ola Electric is the electric mobility arm of Ola, producing electric scooters and developing EV infrastructure across India.",
+    "keywords": ["electric mobility", "EV", "transport", "sustainability"],
+    "id": "03895da7-ce7b-498f-b0ff-b2d13a087bfa"
+  },
+  {
+    "name": "Bounce",
+    "sector": "Mobility / Micro-mobility",
+    "description": "Bounce is a shared mobility startup that offers scooter rentals, battery swapping, and micro mobility solutions in cities.",
+    "keywords": ["mobility", "micro mobility", "scooter rentals", "urban transport"],
+    "id": "2049426d-134c-4913-b344-b82d6c6aead2"
+  },
+  {
+    "name": "Rapido",
+    "sector": "Mobility / Ride Sharing",
+    "description": "Rapido is an Indian ride-sharing / bike taxi platform connecting commuters in cities via 2-wheeler rides.",
+    "keywords": ["mobility", "ride sharing", "bike taxi", "urban transport"],
+    "id": "5e8dc3f9-dcdf-4d22-a4e9-f028651c5a68"
+  },
+  {
+    "name": "Delight Labs",
+    "sector": "Gaming / EdTech",
+    "description": "Delight Labs builds educational gaming apps for children using AR/VR, puzzles and interactive storytelling.",
+    "keywords": ["edtech", "gaming", "AR/VR", "learning"],
+    "id": "2bcc9074-960c-4aa7-b5c2-69fa1f49bd5d"
+  },
+  {
+    "name": "Playabl",
+    "sector": "Gaming / Social",
+    "description": "Playabl is a casual games platform that creates social, casual mobile games targeting Indian audiences.",
+    "keywords": ["gaming", "mobile games", "social games", "entertainment"],
+    "id": "5d6f472a-1c56-49ca-9ae0-91cc9eb421d5"
+  },
+  {
+    "name": "Whatfix",
+    "sector": "SaaS / Onboarding",
+    "description": "Whatfix provides a digital adoption platform that helps users onboard, self-help and learn software via in-app guidance.",
+    "keywords": ["SaaS", "digital adoption", "onboarding", "user guidance"],
+    "id": "977824bd-59ea-4d45-8404-5d7ffa97d09b"
+  },
+  {
+    "name": "Postman",
+    "sector": "SaaS / DevTools",
+    "description": "Postman is a collaboration platform for APIs, enabling developers to build, test, document, and monitor APIs.",
+    "keywords": ["SaaS", "APIs", "developer tools", "platform"],
+    "id": "037d08e7-4585-40ae-8ac8-6608f3aea7dc"
   }
 ]

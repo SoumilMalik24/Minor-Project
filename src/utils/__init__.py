@@ -360,11 +360,16 @@ def process_and_store_initial_articles(startup_id, startup_name, helping_words):
     results = sentiment_score_batch(contents)
     batch = []
 
+    if len(content) > 300:
+        truncated_content = content[:300].rsplit(' ', 1)[0] + "..."
+    else:
+        truncated_content = content
+
     for article, (sentiment, score) in zip(valid_articles, results):
         content = article.get("content") or article.get("description")
         batch.append((
             str(uuid.uuid4()),
-            content[:300],
+            truncated_content,
             article.get("publishedAt"),
             sentiment,
             score,
@@ -410,12 +415,16 @@ def process_and_store_daily_articles(startup_id, startup_name, helping_words):
 
     results = sentiment_score_batch(contents)
     batch = []
+    if len(content) > 300:
+        truncated_content = content[:300].rsplit(' ', 1)[0] + "..."
+    else:
+        truncated_content = content
 
     for article, (sentiment, score) in zip(valid_articles, results):
         content = article.get("content") or article.get("description")
         batch.append((
             str(uuid.uuid4()),
-            content[:300],
+            truncated_content,
             article.get("publishedAt"),
             sentiment,
             score,
