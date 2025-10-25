@@ -6,6 +6,7 @@ src/sentiments/finbert_model/
 *.bin
 *.safetensors
 logs
+changes.txt
 # Byte-compiled / optimized / DLL files
 __pycache__/
 *.py[codz]
