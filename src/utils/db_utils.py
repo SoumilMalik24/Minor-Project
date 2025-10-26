@@ -3,7 +3,6 @@ import json
 import psycopg2
 from src.constants import DB_URL
 from datetime import datetime
-from src.database import db_connection
 from src.logger import logging
 
 
