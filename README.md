@@ -9,15 +9,15 @@ The aim of the project is to **analyze startup-related news articles and determi
 ---
 
 ## 🛠️ Tech Stack
-- **Programming Language:** Python 3.11  
-- **Frameworks/Libraries:**
-  - Hugging Face Transformers
-  - PyTorch
-  - Pandas, NumPy
-  - Scikit-learn (for preprocessing + metrics) 
-- **Database:** PostgreSQL  
-- **Version Control:** Git + GitHub  
-- **CI/CD:** GitHub Actions  
+| Layer | Technology |
+|-------|-------------|
+| **Language** | Python 3.11 |
+| **Database** | PostgreSQL |
+| **API Source** | NewsAPI |
+| **ML Model** | FinBERT (custom fine-tuned) |
+| **Libraries** | `torch`, `transformers`, `requests`, `psycopg2`, `concurrent.futures` |
+| **Deployment** | GitHub Actions (CI/CD) |
+| **Logging** | Custom structured logging system |
 
 ---
 
@@ -33,17 +33,77 @@ The aim of the project is to **analyze startup-related news articles and determi
 
 ## 📂 Project Structure
 ```bash
-Startup-News-Sentiment-Analysis/
-│── src/
-│   ├── database/         # Database connection & queries
-│   ├── pipeline/         # Data processing & ML pipeline
-│   ├── logger.py         # Logging setup
-│   └── utils.py          # Helper functions
-│── tests/                # Unit tests
-│── requirements.txt      # Project dependencies
-│── README.md             # Project documentation
-│── .github/workflows/    # CI/CD pipeline configs
+│
+├── main.py
+└── src/
+├── utils/
+│ ├── db_utils.py ← DB operations
+│ ├── cache_utils.py ← Duplicate URL cache
+│ ├── newsapi_utils.py ← NewsAPI fetch & key rotation
+│ ├── sentiment_utils.py ← FinBERT sentiment scoring
+│ ├── text_utils.py ← Text merge & truncation
+│ └── pipeline_utils.py ← Full pipeline orchestration
+│
+├── database/
+│ └── init.py ← DB connection handler
+├── logger/
+│ └── init.py ← Structured logger
+├── sentiments/
+│ └── finbert_model/ ← Model folder
+└── constants.py
 ```
+
+---
+
+## 🧩 Database Design
+
+### **Startups Table**
+| Column | Type | Description |
+|--------|------|-------------|
+| id | UUID | Unique startup ID |
+| name | TEXT | Startup name |
+| findingKeywords | JSON | Keyword list for targeted queries |
+| createdAt | TIMESTAMP | Record creation time |
+
+### **Articles Table**
+| Column | Type | Description |
+|--------|------|-------------|
+| id | UUID | Unique article ID |
+| startupId | UUID | Foreign key reference |
+| title | TEXT | Article title |
+| content | TEXT | Truncated content (≤ 300 chars) |
+| url | TEXT | Article URL |
+| publishedAt | TIMESTAMP | Publication time |
+| sentiment | TEXT | Sentiment label (pos/neu/neg) |
+| sentimentScore | FLOAT | Weighted sentiment score |
+| sourceName | TEXT | Publisher |
+| createdAt | TIMESTAMP | DB insertion time |
+
+---
+
+## 🔍 Key Features
+
+✅ **Automatic news fetching** — startup-specific queries via NewsAPI  
+✅ **Sentiment analysis** — using `Soumil24/finbert-custom` (fine-tuned FinBERT)  
+✅ **Duplicate prevention** — in-memory URL cache + DB check  
+✅ **Threaded execution** — uses `ThreadPoolExecutor` for parallel fetching  
+✅ **Multi-key API rotation** — round-robin handling of multiple NewsAPI keys  
+✅ **Resilient pipeline** — retries, error handling, exponential backoff  
+✅ **Structured logging** — clean, timestamped JSON logs  
+✅ **CI/CD integration** — GitHub Actions auto-runs pipeline daily  
+
+---
+
+## 🧠 Sentiment Analysis Logic
+
+| Label | Meaning | Weight |
+|--------|----------|--------|
+| **Positive** | Favorable coverage | `+1` |
+| **Neutral** | Objective tone | `0` |
+| **Negative** | Criticism or risk | `-1` |
+
+Weighted sentiment score =  
+`Σ(probability × weight)` across all three classes.
 
 ---
 
